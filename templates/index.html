@@ -1,0 +1,67 @@
+{% load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel = "stylesheet" href = "{% static 'styles.css' %}" />
+    <title>Device Comparison</title>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const devices = {{ devices|safe }};
+            
+            const device1Select = document.getElementById('device1');
+            const device2Select = document.getElementById('device2');
+            const device1Specs = document.getElementById('device1-specs');
+            const device2Specs = document.getElementById('device2-specs');
+
+            function updateSpecs(selectElement, specsElement) {
+                const selectedDeviceName = selectElement.value;
+                const device = devices.find(d => d.name === selectedDeviceName);
+                specsElement.innerHTML = device ? `<h3>${device.name}</h3><p><strong>Specs:</strong> ${device.specs}</p>` : '';
+            }
+
+            device1Select.addEventListener('change', () => updateSpecs(device1Select, device1Specs));
+            device2Select.addEventListener('change', () => updateSpecs(device2Select, device2Specs));
+
+            // Initialize specs display
+            updateSpecs(device1Select, device1Specs);
+            updateSpecs(device2Select, device2Specs);
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Device Comparison</h1>
+    </header>
+    <div class="container">
+        <form method="post" action="{% url 'compare_devices' %}">
+            {% csrf_token %}
+            <div class="form-container">
+                <div class="select-box">
+                    <label for="device1">Select first device:</label>
+                    <select id="device1" name="device1">
+                        {% for device in devices %}
+                            <option value="{{ device.name }}">{{ device.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div id="device1-specs" class="result"></div>
+                </div>
+                <div class="button-container">
+                    <button type="submit">Compare</button>
+                </div>
+                <div class="select-box">
+                    <label for="device2">Select second device:</label>
+                    <select id="device2" name="device2">
+                        {% for device in devices %}
+                            <option value="{{ device.name }}">{{ device.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div id="device2-specs" class="result"></div>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
